@@ -6,8 +6,9 @@ CustomMarker = L.Marker.extend({
        presenter: null,
        year: null,
        major: null,
-       org: null
-       
+       org: null,
+       title: null,
+       description: null
    }
 });
 
@@ -22,24 +23,29 @@ var clusters=L.markerClusterGroup();
 
 function showBox(e){
     $('#details').html(
-        'Tanner ID: '+this['options']['id']+'<br>'+
-        'Presenter: '+this['options']['presenter']+'<br>'+
+//        'Tanner ID: '+this['options']['id']+'<br>'+
+        this['options']['presenter']+'<br>'+
         'Class Year: '+this['options']['year']+'<br>'+
 	'Major(s): '+this['options']['major']+'<br>'+
-	'The name of the organization where the primary presenter interned or were affiliated with: '+this['options']['org']
+//	'The name of the organization where the primary presenter interned or were affiliated with: '+this['options']['org']
+    'Presentation Title: ' + this['options']['title']
     );
 }
 
 $.getJSON('tanner.json', function(data){
     $.each(data,function(i,obj){
         if (!obj.hasOwnProperty('Additional Presenters')){
-            var window='Presenter: '+obj['Primary presenter']+'<br>Title: '+obj['Title of Presentation'];
+            var window=obj['Primary presenter']+ ', ' 
+            + obj['Class Year'] + ', ' + obj['Majors'] + 
+              
+                '<br>Title: ' + obj['Title of Presentation'] + '<br>Description: ' + obj['Final Abstract'].substr(0,150) + '...';
             var marker=new CustomMarker([obj['location']['lat'],obj['location']['lng']],{
-                id: obj['Tanner ID'],
+                id: obj['Tanner ID'], 
                 presenter: obj['Primary presenter'],
                 year: obj['Class Year'],
 		major: obj['Majors'],
-		org: obj['The name of the organization where the primary presenter interned or were affiliated with']
+		org: obj['The name of the organization where the primary presenter interned or were affiliated with'],
+        title: obj['Title of Presentation']
             }).bindPopup(window).on('mouseover', showBox);
             clusters.addLayer(marker);
         }
